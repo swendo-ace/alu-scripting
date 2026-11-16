@@ -5,12 +5,16 @@ import requests
 
 def top_ten(subreddit):
     """Print the titles of the 10 hottest posts, or None if invalid."""
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {"User-Agent": "linux:alu-scripting.api-advanced:v1.0"}
-    response = requests.get(url, headers=headers, allow_redirects=False)
-    if response.status_code != 200:
+    try:
+        response = requests.get(url, headers=headers,
+                                allow_redirects=False, timeout=10)
+        if response.status_code != 200:
+            print(None)
+            return
+        posts = response.json().get("data", {}).get("children", [])
+        for post in posts[:10]:
+            print(post.get("data", {}).get("title"))
+    except Exception:
         print(None)
-        return
-    posts = response.json().get("data", {}).get("children", [])
-    for post in posts:
-        print(post.get("data", {}).get("title"))
